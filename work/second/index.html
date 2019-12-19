@@ -21,12 +21,30 @@
     </div>
     <script src="../../common/js/jquery.js"></script>
     <script>
+      $(function(){
       // 今回やるのはモーダルです。
       // .modal-show をクリックすることで .modal をfadeInさせる。
+        // $('.modal-show').click().fadeIn(2000,function(){
+        //   console.log('fadeinされました');
+        // });
+        $('.modal-show').on("click",function(){
+          $('.modal').fadeIn(2000,function(){
+            console.log('fadeInしました');
+          });
+        });
       // .modal-close をクリックで .modal をfadeOutさせる。
+        // $('.modal-close').click().fadeOut(2000,function(){
+        //   console.log('fadeoutしました');
+        // });
+        $('.modal-close').on("click",function(){
+          $('.modal').fadeOut(200,function(){
+            console.log('fadeOutしました。');
+          });
+        });
       // .click() クリック時のイベントを登録する。
       // .fadeIn() 一定時間かけてフェードインする。
       // .fadeOut() 一定時間かけてフェードアウトする。
+    });
     </script>
   </body>
 </html>
