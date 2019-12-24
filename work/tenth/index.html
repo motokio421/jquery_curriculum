@@ -53,7 +53,7 @@
       var word = "";
       var page = 0;
       var searchWord = "";
-      var errorText = ""
+      var errorText = "";
 
       // clickする時にid=js-search-wordの値を取得
       $('.search__btn').click(function(){
@@ -124,14 +124,13 @@
             });
             $('ul').empty();
             $('.lists').prepend(list); 
-           }
-          else if (data.count == 0) {
+           }　else if (data.count == 0) {
             console.log("なし");
             searchZero();
-          }   
+          }    
         } 
 
-        // 条件分岐
+        // 条件分岐fail
         var switchcase = function(jqXHR){
           switch(jqXHR.status){
               case 400:
