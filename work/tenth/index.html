@@ -38,36 +38,126 @@
       // $.ajax({}) 外部ファイルやURLに対してデータをリクエストすることができます。
       // 以下は今回使う$.ajaxの基本的な形です。
       //
-      // $.ajax({
-      //   url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
-      //   type: 'GET',
-      //   datatype: 'json',
-      //   data: {
-      //     // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
-      //     applicationId: '1019399324990976605', // (今回はこのIDを使用してください)
-      //     booksGenreId: '001'
-      //   },
-      // }).done(function(data) {
-      //   // この中にデータ取得後の動きを記述していきます。
-      //   console.log(data);
-      // });
-      //
       //
       // $.ajaxによってデータが取得できたら、必要なデータ(作品名とか作者名とか)を取得します。
       // 取得できたらHTMLに<ul class='lists'></ul>を用意しているので、その中に下のテンプレに沿ってデータを入れ込みましょう。
-      // <li class='lists__item'>
-      //  <div class='lists__item__inner'>
-      //    <a href='' class='lists__item__link' target='_blank'>
-      //      <img src='' class='lists__item__img' alt=''>
-      //      <p class='lists__item__detail'>作品名：</p>
-      //      <p class='lists__item__detail'>作者　：</p>
-      //      <p class='lists__item__detail'>出版社：</p>
-      //    </a>
-      //  </div>
-      // </li>
+      
       //
       //
       //
+
+      // Answer
+// JQueryスタート
+    $(function(){
+      // 変数を用意する。
+      var word = "";
+      var page = 0;
+      var searchWord = "";
+      var errorText = ""
+
+      // clickする時にid=js-search-wordの値を取得
+      $('.search__btn').click(function(){
+        searchWord = $('#js-search-word').val();
+        // console.log(searchWord);
+        page = page + 1;
+        if(word !== searchWord){
+          $('ul').empty();
+          page = 1;
+        };
+        request();
+        word = searchWord;
+      });
+ 
+      // ajax
+        var request = function(){
+          $.ajax({
+            url: 'https://app.rakuten.co.jp/services/api/BooksTotal/Search/20130522',
+            type: 'GET',
+            datatype: 'json',
+            data: {
+              // 「区分:サービス固有パラメーター」を確認して、必要な情報をdata内に入れましょう。
+              applicationId: '1019399324990976605', // (今回はこのIDを使用してください)
+              booksGenreId: '001',
+              hits: 20,
+              page: page,
+              keyword: searchWord
+            },　//ここまで第一引数
+          }).done(function(data) {
+            // この中にデータ取得後の動きを記述していきます。
+              // console.log(data)
+              var data = data
+              doneSearch(data);
+          }).fail(function(jqXHR){
+            // エラーの時の処理
+            //  jqXHR.status // HTTPステータスが取得
+            //  textStatus    // タイムアウト、パースエラー
+            //  errorThrown.message// 例外情報
+            var jqXHR = jqXHR;
+            switchcase(jqXHR);
+            $('ul').empty();
+            $('.lists').append('<li class="message">' + errorText + '</li>');
+          });
+        } //functionタグ
+
+
+        //検索結果が0の場合の関数定義
+        var searchZero = function(){
+          $('.lists').append('<li class="message"><p class="zero-message">検索結果が0件でした。<br>キーワードを変えて検索してください。</p></li>');
+        }
+
+        //検索がヒットしたときの関数定義
+        var doneSearch = function(data){
+           if(data.count > 0){
+            var list =''
+          $.each(data.Items,function(index,value){
+             list +=
+                "<li class='lists__item'>"+
+                "<div class='lists__item__inner'>"+
+                "<a href='' class='lists__item__link' target='_blank'>"+
+                "<img src="+ value.Item.mediumImageUrl +"  class='lists__item__img' alt=''>"+
+                "<p class='lists__item__detail'>作品名：</p>" + value.Item.title + 
+                "<p class='lists__item__detail'>作者： </p>"+ value.Item.author +
+                "<p class='lists__item__detail'>出版社：</p>" + value.Item.publisherName +
+                "</a>"+
+                "</div>"+
+                "</li>";
+            });
+            $('ul').empty();
+            $('.lists').prepend(list); 
+           }
+          else if (data.count == 0) {
+            console.log("なし");
+            searchZero();
+          }   
+        } 
+
+        // 条件分岐
+        var switchcase = function(jqXHR){
+          switch(jqXHR.status){
+              case 400:
+              errorText ='パラメーターエラー';
+              console.log(errorText);
+              break;
+ 
+              case 404:
+              console.log('対象のデータが存在しません');
+              break;
+
+              case 429:
+              console.log('リクエストが多いよ');
+              errorText = 'リクエストが多いよ';
+              break;
+
+              case 500:
+              console.log('楽天ウェブ内のエラー');
+              break;
+
+              case 0:
+              errorText ="通信がないです"
+              break;
+            }
+        };
+  });
     </script>
   </body>
 </html>
